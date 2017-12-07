@@ -29,7 +29,7 @@ local function GetSpellId(spellname)
 end
 
 local function latency()
-  local down, up, lagHome, lagWorld = GetNetStats()
+  local lagWorld = GetNetStats()
   return lagWorld
 end
 
@@ -56,20 +56,27 @@ function castable(spellName, target)
 end
 
 function HasDebuff(unit, textureName)
-	local i = 1
-	while UnitDebuff(unit, i) do
-		local texture, applications, duration = UnitDebuff(unit, i)
-		if string.find(texture, textureName) and duration ~= nil then
-			return applications
-		end
-		i = i + 1
-	end
-	return 0
+  local i = 1
+  while UnitDebuff(unit, i) do
+    local texture, applications, duration = UnitDebuff(unit, i)
+    if string.find(texture, textureName) and duration ~= nil then
+      return applications
+    end
+    i = i + 1
+  end
+  return 0
 end
 
-function DebuffDuration(unit, textureName)
-  local expirationTime
-  return
+function HasBuff(unit, textureName)
+  local i = 1
+  while UnitBuff(unit, i) do
+    local texture = UnitBuff(unit, i)
+    if string.find(texture, textureName) then
+      return true
+    end
+    i = i + 1
+  end
+  return false
 end
 
 function Rage()
