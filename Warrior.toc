@@ -2,4 +2,5 @@
 ## Title: Warrior
 ## Version: 1.0
 ## Notes: Rotation that'll help with warrior cycles
+load.lua
 main.lua
