@@ -1,6 +1,7 @@
-
 function Combat()
-  if not HasBuff("player", "BattleShout") and Rage() > 10 then
+
+  if not HasBuff("player", "BattleShout") and Rage() > 10
+  and castable("target", "Battle Shout") then
     return CastSpellByName("Battle Shout")
   end
 
