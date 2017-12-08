@@ -3,23 +3,10 @@ if UnitClass("player") ~= "Warrior" then
 end
 local updateRate = .1
 local debugTime = nil
+if TimeSinceLastUpdate == nil then TimeSinceLastUpdate = 0 end
+if TimeAfterLastUpdate == nil then TimeAfterLastUpdate = GetTime() end
 
-local function onUpdate(self,elapsed)
-  debugTime = GetTime()
-  self.lastUpdate = self.lastUpdate + elapsed
-  if self.lastUpdate > getUpdateRate() then
-    if not UnitAffectingCombat("player") then
-      Resting()
-    end
-    if UnitAffectingCombat("player") then
-      Combat()
-    end
-    self.lastUpdate = 0
-  end
-  debugTime = GetTime() - debugTime -- Time it took to update
-end
-
-local function getUpdateRate()
+function getUpdateRate()
   if GetFramerate() < 30 then
     updateRate = 0.2
   end
@@ -29,7 +16,7 @@ local function getUpdateRate()
   return updateRate
 end
 
-local function GetSpellId(spellname)
+function GetSpellId(spellname)
   local id = 1
   for i = 1, GetNumSpellTabs() do
     local _, _, _, numSpells = GetSpellTabInfo(i)
@@ -60,13 +47,13 @@ function SpellOnCD(spellName)
   return true
 end
 
-function castable(spellName, target)
+function castable(target, spellName)
   if UnitIsUnit("player", target) or UnitIsDead(target)
   or not UnitExists(target) then
     return false
-  end
-  local start, duration = GetSpellCooldown(61304)
-  if start == 0 or duration < latency() then
+  elseif SpellOnCD(spellName) then
+    return false
+  else
     return true
   end
 end
@@ -74,9 +61,9 @@ end
 function HasDebuff(unit, textureName)
   local i = 1
   while UnitDebuff(unit, i) do
-    local texture, applications, duration = UnitDebuff(unit, i)
-    if string.find(texture, textureName) and duration ~= nil then
-      return applications
+    local texture, icon = UnitDebuff(unit, i)
+    if string.find(texture, textureName) then
+      return true
     end
     i = i + 1
   end
@@ -98,3 +85,21 @@ end
 function Rage()
   return UnitMana("player")
 end
+
+function Warrior_onUpdate()
+  debugTime = GetTime()
+  TimeSinceLastUpdate = GetTime() - TimeAfterLastUpdate
+  update = getUpdateRate()
+  if (TimeSinceLastUpdate > update) then
+    if UnitAffectingCombat("player") == 1 then
+      Combat()
+    end
+    TimeSinceLastUpdate = 0
+    TimeAfterLastUpdate = GetTime()
+  end
+  debugTime = GetTime() - debugTime -- Time it took to update
+end
+
+local UpdateFrame = CreateFrame("Frame", nil);
+UpdateFrame:SetScript("OnUpdate",Warrior_onUpdate);
+UpdateFrame:RegisterEvent("OnUpdate");
