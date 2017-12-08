@@ -1,9 +1,8 @@
 function Combat()
   local spellId = GetSpellId("Rend")
   local texture = GetSpellTexture(spellId, "BOOKTYPE_SPELL")
-
   if not UnitExists("target") then
-    if not LastCheck then local LastCheck = GetTime() + 0.5 end
+    if not LastCheck then LastCheck = GetTime() + 0.5 end
     local NextCheck = GetTime()
     if NextCheck - LastCheck >= 0.5 then
       for i=1,5 do
@@ -16,10 +15,10 @@ function Combat()
       end
       LastCheck = GetTime()
     end
-  end
-
-  if CheckInteractDistance("target", 3) then
-    AutoAttack()
+  else
+    if CheckInteractDistance("target", 3) then
+      EnableAttack()
+    end
   end
 
   if not HasBuff("player", "BattleShout") and Rage() >= 10
@@ -28,8 +27,16 @@ function Combat()
   end
 
   if HasDebuff("target", texture) == false and Rage() >= 10
-  and castable("target", "Rend") then
+  and castable("target", "Rend")
+  and UnitCreatureType("target") ~= "Mechanical" then
     return CastSpellByName("Rend")
+  end
+
+  if not lastHS then lastHS = 0 end
+  if Rage() >= (25 - HasTalent(1,1)) and castable("target", "Heroic Strike")
+  and GetTime() - lastHS >= 1.5 then
+    lastHS = GetTime()
+    return CastSpellByName("Heroic Strike")
   end
 end
 

@@ -16,6 +16,18 @@ function getUpdateRate()
   return updateRate
 end
 
+function CombatLog(self, event,...)
+  if event == "CHAT_MSG_SPELL_SELF_DAMAGE" then
+    if string.find(arg1, "Your Overpower hits (.+) for (%d+).") then
+      return 0
+    end
+  end
+end
+
+chat = CreateFrame("Frame")
+chat:RegisterEvent("CHAT_MSG_SPELL_SELF_DAMAGE")
+chat:SetScript("OnEvent", CombatLog)
+
 function GetSpellId(spellname)
   local id = 1
   for i = 1, GetNumSpellTabs() do
@@ -58,17 +70,22 @@ function castable(target, spellName)
   end
 end
 
-function AutoAttack()
-  if not Attack then
-    for i = 1,72 do
+function HasTalent(tab, number)
+  name, icon, tier, column, currentRank = GetTalentInfo(tab, number)
+  return currentRank
+end
+
+function EnableAttack()
+  if not AttackAction then
+    for i = 1, 120 do
       if IsAttackAction(i) then
-        Attack = i
+        AttackAction = i
       end
     end
   end
-  if Attack then
-    if not IsCurrentAction(Attack) then
-      UseAction(Attack)
+  if AttackAction then
+    if not IsCurrentAction(AttackAction) then
+      UseAction(AttackAction)
     end
   end
 end
