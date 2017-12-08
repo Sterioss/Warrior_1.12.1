@@ -11,7 +11,7 @@ function getUpdateRate()
     updateRate = 0.2
   end
   if GetFramerate() > 50 then
-    updateRate = 0.1
+    updateRate = 0.05
   end
   return updateRate
 end
@@ -58,6 +58,21 @@ function castable(target, spellName)
   end
 end
 
+function AutoAttack()
+  if not Attack then
+    for i = 1,72 do
+      if IsAttackAction(i) then
+        Attack = i
+      end
+    end
+  end
+  if Attack then
+    if not IsCurrentAction(Attack) then
+      UseAction(Attack)
+    end
+  end
+end
+
 function HasDebuff(unit, textureName)
   local i = 1
   while UnitDebuff(unit, i) do
@@ -67,7 +82,7 @@ function HasDebuff(unit, textureName)
     end
     i = i + 1
   end
-  return 0
+  return false
 end
 
 function HasBuff(unit, textureName)
@@ -89,8 +104,7 @@ end
 function Warrior_onUpdate()
   debugTime = GetTime()
   TimeSinceLastUpdate = GetTime() - TimeAfterLastUpdate
-  update = getUpdateRate()
-  if (TimeSinceLastUpdate > update) then
+  if (TimeSinceLastUpdate > getUpdateRate()) then
     if UnitAffectingCombat("player") == 1 then
       Combat()
     end
@@ -100,6 +114,6 @@ function Warrior_onUpdate()
   debugTime = GetTime() - debugTime -- Time it took to update
 end
 
-local UpdateFrame = CreateFrame("Frame", nil);
-UpdateFrame:SetScript("OnUpdate",Warrior_onUpdate);
-UpdateFrame:RegisterEvent("OnUpdate");
+local UpdateFrame = CreateFrame("Frame", nil)
+UpdateFrame:SetScript("OnUpdate",Warrior_onUpdate)
+UpdateFrame:RegisterEvent("OnUpdate")
